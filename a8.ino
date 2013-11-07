@@ -59,7 +59,7 @@ void loop() {
   // if I'm sitting, update the display, adding the time delta
   
   
-  matrix.print((int)overallTimeSitting/1000, DEC);
+  matrix.print((long)overallTimeSitting/1000, DEC);
   matrix.writeDisplay();
   delay(50);
 }

@@ -18,6 +18,10 @@ float overallTimeSitting = 0;
 float sitStartTime = 0;
 float timeBefore = 0;
 
+const float sitWarningThresholdInMinutes = 0.25;
+
+#define minutesToMillisFactor 60000
+
 void setup() {
   // get the serial port running for debugging
   Serial.begin(9600);
@@ -37,8 +41,13 @@ void loop() {
   Serial.println("overallTimeSitting");
   Serial.println(overallTimeSitting);
   
-  if (overallTimeSitting > 10000 && currentlySitting) {
-    vibrate();
+  // how long have I currently been sitting?
+  float currentSitDurationInMillis = millis() - sitStartTime;
+  
+  // warn if I've been sitting too long
+  if ((currentSitDurationInMillis > sitWarningThresholdInMinutes * minutesToMillisFactor) 
+     && currentlySitting) {
+       vibrate();
   }
   
   // if I'm sitting, update the display, adding the time delta

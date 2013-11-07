@@ -11,14 +11,16 @@ int pressureReading; // the analog reading from the FSR resistor driver
 int sittingThreshold = 700;
 
 // cell phone vibrator
-int vibratorPin = 8;
+int vibratorPin = 7;
 
 boolean currentlySitting = false;
 float overallTimeSitting = 0;
 float sitStartTime = 0;
 float timeBefore = 0;
 
-const float sitWarningThresholdInMinutes = 0.25;
+boolean warningNow;
+
+const float sitWarningThresholdInMinutes = 0.05;
 
 #define minutesToMillisFactor 60000
 
@@ -47,7 +49,11 @@ void loop() {
   // warn if I've been sitting too long
   if ((currentSitDurationInMillis > sitWarningThresholdInMinutes * minutesToMillisFactor) 
      && currentlySitting) {
-       vibrate();
+       warningNow = true;
+  }
+  
+  if (warningNow == true) {
+    digitalWrite(vibratorPin, HIGH);
   }
   
   // if I'm sitting, update the display, adding the time delta
@@ -56,12 +62,6 @@ void loop() {
   matrix.print((int)overallTimeSitting/1000, DEC);
   matrix.writeDisplay();
   delay(50);
-  
-
-}
-
-void vibrate() {
-  digitalWrite(vibratorPin, HIGH);
 }
 
 void checkSitting() {
@@ -88,6 +88,8 @@ void checkSitting() {
     if (currentlySitting == true) {
       currentlySitting = false; 
       Serial.println("got up");
+      warningNow = false;
+      digitalWrite(vibratorPin, LOW);
     }
   }
   timeBefore = timeNow;

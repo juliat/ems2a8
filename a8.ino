@@ -8,22 +8,23 @@ Adafruit_7segment matrix = Adafruit_7segment();
 // pressure sensor
 const int sensorPin = 0;
 int pressureReading; // the analog reading from the FSR resistor driver
-int sittingThreshold = 700;
+int sittingThreshold = 900;
 
 // cell phone vibrator
 int vibratorPin = 7;
 
+#define minutesToMillisFactor 60000
+
 boolean currentlySitting = false;
-float overallTimeSitting = 0;
+float overallTimeSitting = 360*minutesToMillisFactor;
 float sitStartTime = 0;
 float timeBefore = 0;
 
 boolean warningNow;
 
-const float sitWarningThresholdInMinutes = 0.05;
-
-#define minutesToMillisFactor 60000
-
+// 0.1 minutes for testing, but this would really be about 30 minutes (for practical use)
+const float sitWarningThresholdInMinutes = 0.1;
+ 
 void setup() {
   // get the serial port running for debugging
   Serial.begin(9600);
@@ -59,12 +60,15 @@ void loop() {
   // if I'm sitting, update the display, adding the time delta
   
   
-  matrix.print((long)overallTimeSitting/1000, DEC);
+  matrix.print((long)overallTimeSitting/minutesToMillisFactor, DEC);
   matrix.writeDisplay();
   delay(50);
 }
 
 void checkSitting() {
+  Serial.print("pressure: ");
+  Serial.println(pressureReading);
+  
   float timeNow = millis();
   // are you sitting?
   if (pressureReading < sittingThreshold) {
